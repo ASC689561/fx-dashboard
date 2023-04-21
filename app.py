@@ -10,9 +10,14 @@ df_group = df.groupby(["account", 'magic'])
 data = {}
 START_MAGIC=1000
 def format_df(df):
-    st.write(df.index)
-    df=df[['time','type','entry','position_id','reason','volume','price','commission','profit','symbol','comment']]
+    # st.write(df)
+    df=df[[ 'time','type','entry', 'reason','volume','price','commission','profit','symbol','comment']]
+    df.sort_values('time',inplace=True)
+    from  matplotlib.colors import LinearSegmentedColormap
+    # cmap=LinearSegmentedColormap.from_list('rg',["lightcoral","white", "palegreen"], N=256) 
+    return df.style.background_gradient(axis=0,gmap=df['profit'],cmap='YlGn')  
     return df
+
 for (acc, magic), v in df_group:
     if acc not in data:
         data[acc] = {}
@@ -37,10 +42,12 @@ sharpe_arr = sorted(sharpe_arr, key=lambda x: x[1], reverse=True)
 
 for magic, sharpe in sharpe_arr:
     df = data[selected_acc][magic]
+    df.reset_index(inplace=True) 
     total_profit = df["profit"].sum()
+    total_trade = df['profit'].count()
 
     color = 'red' if total_profit < 0 else 'green'
-    title = f'magic :blue[{magic}] : total profit: :{color}[{total_profit:.0f}] sharpe: :{color}[{sharpe:.2f}] '
+    title = f'magic: :blue[{magic}] total profit: :{color}[{total_profit:.0f}] total trade: :{color}[{total_trade}] sharpe: :{color}[{sharpe:.2f}] '
     # st.write(title)
     exp = st.expander(label=title, expanded=False)
     with exp:
