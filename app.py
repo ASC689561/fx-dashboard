@@ -12,11 +12,8 @@ START_MAGIC=1000
 def format_df(df):
     # st.write(df)
     df=df[[ 'time','type','entry', 'reason','volume','price','commission','profit','symbol','comment']]
-    df.sort_values('time',inplace=True)
-    from  matplotlib.colors import LinearSegmentedColormap
-    # cmap=LinearSegmentedColormap.from_list('rg',["lightcoral","white", "palegreen"], N=256) 
-    return df.style.background_gradient(axis=0,gmap=df['profit'],cmap='YlGn')  
-    return df
+    df.sort_values('time',inplace=True) 
+    return df.style.background_gradient(axis=0,gmap=df['profit'],cmap='YlGn')   
 
 for (acc, magic), v in df_group:
     if acc not in data:
