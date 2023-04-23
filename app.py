@@ -1,16 +1,17 @@
 import streamlit as st
-
-
 from direct_redis import DirectRedis
+
+st.set_page_config(layout='wide')
+
+st.write('<style>div.block-container{padding-top:2rem;}</style>', unsafe_allow_html=True)
+
 r = DirectRedis(host='45.77.19.225', port=6379,password='eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81')
 df = r.get('mt5_table')
-# st.write(df)
 
 df_group = df.groupby(["account", 'magic'])
 data = {}
 START_MAGIC=1000
 def format_df(df):
-    # st.write(df)
     df=df[[ 'time','type','entry', 'reason','volume','price','commission','profit','symbol','comment']]
     df.sort_values('time',inplace=True) 
     return df.style.background_gradient(axis=0,gmap=df['profit'],cmap='YlGn')   
