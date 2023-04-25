@@ -1,3 +1,4 @@
 direct-redis
 matplotlib
 pandas
+streamlit_autorefresh
