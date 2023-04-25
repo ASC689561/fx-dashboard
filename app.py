@@ -9,6 +9,7 @@ r = DirectRedis(host='45.77.19.225', port=6379,password='eYVX7EwVmmxKPCDmwMtyKVg
 df = r.get('mt5_table')
 
 df_group = df.groupby(["account", 'magic'])
+
 data = {}
 START_MAGIC=1000
 def format_df(df):
