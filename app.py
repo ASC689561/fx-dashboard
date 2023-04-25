@@ -25,7 +25,7 @@ for (acc, magic), v in df_group:
     data[acc][magic] = v
 
 # st.write(str( list(data.keys())))
-tabs = st.tabs([str(x) for x in data.keys()])
+# tabs = st.tabs([str(x) for x in data.keys()])
 selected_acc = st.selectbox('select account', list(data.keys()))
 
 
