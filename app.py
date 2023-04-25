@@ -10,6 +10,7 @@ st.write('<style>div.block-container{padding-top:2rem;}</style>', unsafe_allow_h
 
 r = DirectRedis(host='45.77.19.225', port=6379, password='eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81')
 df = r.get('mt5_table')
+df['time']=pd.to_datetime(df['time'],unit='s')
 current_positions = r.get('mt5_current_position')
 
 df_group = df.groupby(["account", 'magic'])
@@ -20,7 +21,7 @@ START_MAGIC = 1000
 
 
 def format_df(df):
-    df = df[['time', 'type', 'entry', 'reason', 'volume', 'price', 'commission', 'profit', 'symbol', 'comment']]
+    df = df[['time','volume', 'price', 'commission', 'profit', 'symbol', 'comment']] 
     df.sort_values('time', inplace=True)
     return df.style.background_gradient(axis=0, gmap=df['profit'], cmap='YlGn')
 
