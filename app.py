@@ -2,9 +2,9 @@ import pandas as pd
 import streamlit as st
 from direct_redis import DirectRedis
 from streamlit_autorefresh import st_autorefresh
-count = st_autorefresh(interval=10000, limit=1000, key="fizzbuzzcounter")
 
 st.set_page_config(layout='wide')
+count = st_autorefresh(interval=10000, limit=1000, key="fizzbuzzcounter")
 
 st.write('<style>div.block-container{padding-top:2rem;}</style>', unsafe_allow_html=True)
 
