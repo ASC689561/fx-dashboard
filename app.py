@@ -10,7 +10,7 @@ st.write('<style>div.block-container{padding-top:2rem;}</style>', unsafe_allow_h
 
 r = DirectRedis(host='45.77.19.225', port=6379, password='eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81')
 df = r.get('mt5_table')
-df['time']=pd.to_datetime(df['time'],unit='s')
+df['time'] = pd.to_datetime(df['time'], unit='s')
 current_positions = r.get('mt5_current_position')
 
 df_group = df.groupby(["account", 'magic'])
@@ -21,7 +21,8 @@ START_MAGIC = 1000
 
 
 def format_df(df):
-    df = df[['time','volume', 'price', 'commission', 'profit', 'symbol', 'comment']] 
+    df = df[['time', 'volume', 'type', 'price', 'commission', 'profit', 'symbol', 'comment']]
+    df['type'] = df['type'].replace({1: 'SELL', 0: 'BUY'})
     df.sort_values('time', inplace=True)
     return df.style.background_gradient(axis=0, gmap=df['profit'], cmap='YlGn')
 
@@ -35,15 +36,16 @@ for (acc, magic), v in df_group:
 
 st.header("Current positions")
 position_df = pd.DataFrame(current_positions)
-if len(position_df)>0:
-    position_df['time']=pd.to_datetime(position_df['time'],unit='s')
-    position_df = position_df[['symbol','magic','time','profit','comment']]
+if len(position_df) > 0:
+    position_df['time'] = pd.to_datetime(position_df['time'], unit='s')
+    position_df['type'] = position_df['type'].replace({1: 'SELL', 0: 'BUY'})
+    position_df = position_df[['symbol', 'magic', 'time', 'type', 'profit', 'comment']]
     st.dataframe(position_df)
 
 st.header("By magics")
 selected_acc = st.selectbox('select account', list(data.keys()))
 
-all_magic =  list(data[acc].keys())
+all_magic = list(data[acc].keys())
 selected_magic = st.multiselect('Select magic', all_magic)
 if len(selected_magic) == 0:
     selected_magic = all_magic
