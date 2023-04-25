@@ -18,6 +18,9 @@ df_group = df.groupby(["account", 'magic'])
 
 data = {}
 START_MAGIC = 1000
+ignore=st.secrets["IGNORE_MAGIC"].split(',')
+ignore = [int(x) for x in ignore if len(x)>0]
+# st.write(ignore)
 
 
 def format_df(df):
@@ -30,7 +33,7 @@ def format_df(df):
 for (acc, magic), v in df_group:
     if acc not in data:
         data[acc] = {}
-    if magic < START_MAGIC:
+    if magic < START_MAGIC or magic in ignore:
         continue
     data[acc][magic] = v
 
