@@ -10,17 +10,18 @@ st.write('<style>div.block-container{padding-top:2rem;}</style>', unsafe_allow_h
 
 r = DirectRedis(host='45.77.19.225', port=6379, password='eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81')
 df = r.get('mt5_table')
-df['time'] = pd.to_datetime(df['time'], unit='s')
 current_positions = r.get('mt5_current_position')
+living_stragies = r.get('mt5_living_strategies')
 
+
+df['time'] = pd.to_datetime(df['time'], unit='s')
 df_group = df.groupby(["account", 'magic'])
 
 
 data = {}
 START_MAGIC = 1000
-ignore=st.secrets["IGNORE_MAGIC"].split(',')
-ignore = [int(x) for x in ignore if len(x)>0]
-# st.write(ignore)
+ignore = st.secrets["IGNORE_MAGIC"].split(',')
+ignore = [int(x) for x in ignore if len(x) > 0]
 
 
 def format_df(df):
@@ -30,53 +31,60 @@ def format_df(df):
     return df.style.background_gradient(axis=0, gmap=df['profit'], cmap='YlGn')
 
 
-for (acc, magic), v in df_group:
-    if acc not in data:
-        data[acc] = {}
-    if magic < START_MAGIC or magic in ignore:
-        continue
-    data[acc][magic] = v
+running_magic_set = set([x[1] for x in living_stragies])
 
-st.header("Current positions")
-position_df = pd.DataFrame(current_positions)
-if len(position_df) > 0:
-    position_df['time'] = pd.to_datetime(position_df['time'], unit='s')
-    position_df['type'] = position_df['type'].replace({1: 'SELL', 0: 'BUY'})
-    position_df = position_df[['symbol', 'magic', 'time', 'type', 'profit', 'comment']]
-    st.dataframe(position_df)
+col1, col2 = st.columns([2, 3])
+with col1:
 
-st.header("By magics")
-selected_acc = st.selectbox('select account', list(data.keys()))
+    st.header("Current positions")
 
-all_magic = list(data[acc].keys())
-selected_magic = st.multiselect('Select magic', all_magic)
-if len(selected_magic) == 0:
-    selected_magic = all_magic
+    position_df = pd.DataFrame(current_positions)
+    if len(position_df) > 0:
+        position_df['time'] = pd.to_datetime(position_df['time'], unit='s')
+        position_df['type'] = position_df['type'].replace({1: 'SELL', 0: 'BUY'})
+        position_df = position_df[['symbol', 'magic', 'time', 'type', 'profit', 'comment']]
+        st.dataframe(position_df)
 
+with col2:
+    st.header("Strategies")
 
-sharpe_arr = []
-for magic, df in data[selected_acc].items():
-    sharpe = df['profit'].mean()/df['profit'].std()
-    if pd.isna(sharpe):
-        continue
+    show_only_running_bool = st.checkbox("Only running", True)
+    for (acc, magic), v in df_group:
+        if acc not in data:
+            data[acc] = {}
+        if magic < START_MAGIC or magic in ignore:
+            continue
+        if show_only_running_bool and magic not in running_magic_set:
+            continue
+        data[acc][magic] = v
 
-    sharpe_arr.append((magic, sharpe))
-sharpe_arr = sorted(sharpe_arr, key=lambda x: x[1], reverse=True)
+    selected_acc = st.selectbox('select account', list(data.keys()))
 
-for magic, sharpe in sharpe_arr:
-    if magic not in selected_magic:
-        continue
-    df = data[selected_acc][magic]
-    df.reset_index(inplace=True)
-    total_profit = df["profit"].sum()
-    total_trade = df['profit'].count()
+    all_magic = list(data[acc].keys())
+    selected_magic = st.multiselect('Select magic', all_magic)
+    if len(selected_magic) == 0:
+        selected_magic = all_magic
 
-    color = 'red' if total_profit < 0 else 'green'
-    title = f'magic: :blue[{magic}] total profit: :{color}[{total_profit:.0f}] total trade: :{color}[{total_trade}] sharpe: :{color}[{sharpe:.2f}] '
-    # st.write(title)
-    exp = st.expander(label=title, expanded=False)
-    with exp:
-        df = format_df(df)
-        st.write(df)
+    sharpe_arr = []
+    for magic, df in data[selected_acc].items():
+        sharpe = df['profit'].mean()/df['profit'].std()
+        if pd.isna(sharpe):
+            continue
 
-    #     st.write(df)
+        sharpe_arr.append((magic, sharpe))
+    sharpe_arr = sorted(sharpe_arr, key=lambda x: x[1], reverse=True)
+
+    for magic, sharpe in sharpe_arr:
+        if magic not in selected_magic:
+            continue
+        df = data[selected_acc][magic]
+        df.reset_index(inplace=True)
+        total_profit = df["profit"].sum()
+        total_trade = df['profit'].count()
+
+        color = 'red' if total_profit < 0 else 'green'
+        title = f'magic: :blue[{magic}] total profit: :{color}[{total_profit:.0f}] total trade: :{color}[{total_trade}] sharpe: :{color}[{sharpe:.2f}] '
+        exp = st.expander(label=title, expanded=False)
+        with exp:
+            df = format_df(df)
+            st.write(df)
