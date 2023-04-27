@@ -83,7 +83,7 @@ with col2:
         total_trade = df['profit'].count()
 
         color = 'red' if total_profit < 0 else 'green'
-        title = f'magic: :blue[{magic}] total profit: :{color}[{total_profit:.0f}] total trade: :{color}[{total_trade}] sharpe: :{color}[{sharpe:.2f}] '
+        title = f'magic: :blue[{magic}] total profit: :{color}[{total_profit:.1f}] total trade: :{color}[{total_trade}] sharpe: :{color}[{sharpe:.2f}] '
         exp = st.expander(label=title, expanded=False)
         with exp:
             df = format_df(df)
