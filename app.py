@@ -18,6 +18,7 @@ living_stragies = r.get('mt5_living_strategies')
 # st.write(current_positions)
 # st.write(living_stragies)
 
+st.write(type(df_all))
 df_all['time'] = pd.to_datetime(df_all['time'], unit='s')
 
 
