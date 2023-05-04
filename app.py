@@ -14,7 +14,7 @@ df_all = r.get('mt5_table')
 current_positions = r.get('mt5_current_position')
 living_stragies = r.get('mt5_living_strategies')
 
-st.write(df_all)
+st.write(df_all[:1000])
 # st.write(df_all['account'].unique())
 # st.write(current_positions)
 # st.write(living_stragies)
