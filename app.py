@@ -13,6 +13,8 @@ r = DirectRedis(host='45.77.19.225', port=6379, password='eYVX7EwVmmxKPCDmwMtyKV
 df_all = r.get('mt5_table')
 current_positions = r.get('mt5_current_position')
 living_stragies = r.get('mt5_living_strategies')
+
+# st.write(df_all)
 # st.write(df_all['account'].unique())
 # st.write(current_positions)
 # st.write(living_stragies)
@@ -22,7 +24,7 @@ df_all['time'] = pd.to_datetime(df_all['time'], unit='s')
 
 data = {}
 START_MAGIC = 1000
-ignore = st.secrets["IGNORE_MAGIC"].split(',')
+ignore = st.secrets.get("IGNORE_MAGIC", '8888,12345,999999,6066,6065,9999,8257').split(',')
 ignore = [int(x) for x in ignore if len(x) > 0]
 
 df_all = df_all[~df_all['magic'].isin(ignore)]
@@ -62,6 +64,7 @@ for tab, acc in zip(tabs, [x for x in list(accounts)]):
         with col2:
             data = {}
             st.header("Strategies")
+         
 
             show_only_running_bool = st.checkbox("Only running", True, key=f'only_running_{acc}')
             for magic, v in df_group:
