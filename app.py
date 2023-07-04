@@ -13,11 +13,6 @@ r = DirectRedis(host='45.77.19.225', port=6379, password='eYVX7EwVmmxKPCDmwMtyKV
 df_all = r.get('mt5_table')
 current_positions = r.get('mt5_current_position')
 living_stragies = r.get('mt5_living_strategies')
-
-df_all=df_all[df_all['magic']==36553]
-# st.write(df_all)
-# st.stop()
-# st.write(df_all)
 # st.write(df_all['account'].unique())
 # st.write(current_positions)
 # st.write(living_stragies)
@@ -67,7 +62,6 @@ for tab, acc in zip(tabs, [x for x in list(accounts)]):
         with col2:
             data = {}
             st.header("Strategies")
-         
 
             show_only_running_bool = st.checkbox("Only running", True, key=f'only_running_{acc}')
             for magic, v in df_group:
